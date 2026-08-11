@@ -1,0 +1,26 @@
+
+=============================
+SERVER HEALTH REPORT
+=============================
+
+Hostname         : git-hub-VMware-Virtual-Platform
+Current User     : git-hub
+Date             : 2026-08-10 22:40
+Operating System : Linux-7.0.0-28-generic-x86_64-with-glibc2.39
+Kernel           : 7.0.0-28-generic
+CPU Usage        : 4.1%
+
+Memory Usage
+Total            : 7.70 GB
+Used             : 2.25 GB
+Free             : 5.47 GB
+Usage            : 29.0%
+
+Disk Usage
+Filesystem       : /
+Used             : 15.05 GB
+Available        : 77.81 GB
+Usage            : 16.2%
+
+IP Address       : 192.168.1.99
+Uptime           : 0 Days 1 Hours 50 Minutes
