@@ -3,14 +3,16 @@ import getpass
 import platform
 from datetime import datetime
 import psutil
+import os
+
 
 # 1. Hostname
 hostname = socket.gethostname()
 
-# 2. Current logged-in user
+# 2. Current User
 current_user = getpass.getuser()
 
-# 3. Current date and time
+# 3. Date and Time
 current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
 
 # 4. Operating System
@@ -38,32 +40,67 @@ disk_free = disk.free / (1024 ** 3)
 disk_percent = disk.percent
 
 # 9. Primary IPv4 Address
-hostname_ip = socket.gethostname()
-ip_address = socket.gethostbyname(hostname_ip)
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+try:
+    sock.connect(("8.8.8.8", 80))
+    ip_address = sock.getsockname()[0]
+except OSError:
+    ip_address = "Unable to determine IP"
+finally:
+    sock.close()
+
+# 10. System Uptime
+boot_time = datetime.fromtimestamp(psutil.boot_time())
+uptime_delta = datetime.now() - boot_time
+
+days = uptime_delta.days
+hours = uptime_delta.seconds // 3600
+minutes = (uptime_delta.seconds % 3600) // 60
+
+uptime = f"{days} Days {hours} Hours {minutes} Minutes"
 
 
-# Display Results
+# Create Server Health Report
+report = f"""
+=============================
+SERVER HEALTH REPORT
+=============================
 
-print("\n===== SERVER MONITOR =====\n")
+Hostname         : {hostname}
+Current User     : {current_user}
+Date             : {current_time}
+Operating System : {operating_system}
+Kernel           : {kernel_version}
+CPU Usage        : {cpu_usage}%
 
-print(f"Hostname       : {hostname}")
-print(f"Current User   : {current_user}")
-print(f"Date & Time    : {current_time}")
-print(f"Operating System : {operating_system}")
-print(f"Kernel Version : {kernel_version}")
-print(f"CPU Usage      : {cpu_usage}%")
+Memory Usage
+Total            : {total_ram:.2f} GB
+Used             : {used_ram:.2f} GB
+Free             : {free_ram:.2f} GB
+Usage            : {memory_percent}%
 
-print("\nMemory Usage")
-print(f"Total : {total_ram:.2f} GB")
-print(f"Used  : {used_ram:.2f} GB")
-print(f"Free  : {free_ram:.2f} GB")
-print(f"Usage : {memory_percent}%")
+Disk Usage
+Filesystem       : /
+Used             : {disk_used:.2f} GB
+Available        : {disk_free:.2f} GB
+Usage            : {disk_percent}%
 
-print("\nDisk Usage")
-print("Filesystem : /")
-print(f"Used       : {disk_used:.2f} GB")
-print(f"Available  : {disk_free:.2f} GB")
-print(f"Usage      : {disk_percent}%")
+IP Address       : {ip_address}
+Uptime           : {uptime}
+"""
 
-print("\nNetwork")
-print(f"IP Address : {ip_address}")
+
+# Display report
+print(report)
+
+
+# Generate reports/server_report.txt
+os.makedirs("reports", exist_ok=True)
+
+report_file = "reports/server_report.txt"
+
+with open(report_file, "w") as file:
+    file.write(report)
+
+print(f"Report saved to: {report_file}")
